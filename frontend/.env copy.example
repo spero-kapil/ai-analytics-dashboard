@@ -1,0 +1,5 @@
+# Endpoint returning provider account usage records.
+VITE_API_URL=http://127.0.0.1:8000/api/data
+
+# Background refresh interval in milliseconds (0 disables auto-refresh).
+VITE_REFRESH_INTERVAL_MS=60000
