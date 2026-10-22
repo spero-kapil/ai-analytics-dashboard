@@ -47,6 +47,19 @@ export const remainingLevel = (remaining) => {
   return 'healthy';
 };
 
+// Colour bands for consumed usage.
+export const USAGE_BANDS = [
+  { id: 'low', max: 25, hex: '#22c55e', text: 'text-green-700' },
+  { id: 'moderate', max: 50, hex: '#3b82f6', text: 'text-blue-700' },
+  { id: 'high', max: 75, hex: '#eab308', text: 'text-yellow-700' },
+  { id: 'critical', max: 100, hex: '#ef4444', text: 'text-red-700' },
+];
+
+export const usageBand = (used) => {
+  if (typeof used !== 'number') return null;
+  return USAGE_BANDS.find((band) => used <= band.max) ?? USAGE_BANDS[USAGE_BANDS.length - 1];
+};
+
 export const LEVEL_STYLES = {
   healthy: { bar: 'bg-emerald-500', text: 'text-emerald-700', badge: 'bg-emerald-50 text-emerald-700 ring-emerald-600/20', dot: 'bg-emerald-500', hex: '#10b981' },
   warning: { bar: 'bg-amber-500', text: 'text-amber-700', badge: 'bg-amber-50 text-amber-700 ring-amber-600/20', dot: 'bg-amber-500', hex: '#f59e0b' },

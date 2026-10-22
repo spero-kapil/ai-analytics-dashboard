@@ -7,12 +7,3 @@
 html {
   -webkit-font-smoothing: antialiased;
 }
-
-/* Hatched fill marking consumed usage in progress bars. */
-.usage-consumed {
-  background-image: repeating-linear-gradient(
-    -45deg,
-    rgb(148 163 184 / 0.35) 0 4px,
-    transparent 4px 8px
-  );
-}

@@ -1,5 +1,5 @@
 import { Bar, BarChart, CartesianGrid, Cell, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
-import { formatPercent, LEVEL_STYLES, remainingLevel } from '../lib/format.js';
+import { formatPercent, USAGE_BANDS, usageBand } from '../lib/format.js';
 
 const shortEmail = (email) => (email ? email.split('@')[0] : 'Account');
 
@@ -10,8 +10,8 @@ function ChartTooltip({ active, payload }) {
     <div className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs shadow-lg">
       <p className="font-semibold text-slate-900">{row.email}</p>
       <p className="mb-1 text-slate-500">{row.meter}</p>
-      <p className="text-emerald-700">Remaining: {formatPercent(row.remaining)}</p>
-      <p className="text-slate-600">Used: {formatPercent(row.used)}</p>
+      <p className={usageBand(row.used).text}>Used: {formatPercent(row.used)}</p>
+      <p className="text-slate-600">Remaining: {formatPercent(row.remaining)}</p>
     </div>
   );
 }
@@ -25,7 +25,7 @@ export default function ProviderOverview({ provider }) {
         email: account.email ?? 'Unnamed account',
         meter: meter.period ? `${meter.period} usage` : meter.label,
         name: account.meters.length > 1 ? `${shortEmail(account.email)} · ${meter.period ?? meter.label}` : shortEmail(account.email),
-        used: meter.usedPercent,
+        used: typeof meter.usedPercent === 'number' ? meter.usedPercent : 100 - meter.remainingPercent,
         remaining: meter.remainingPercent,
       })),
   );
@@ -36,7 +36,7 @@ export default function ProviderOverview({ provider }) {
     <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5" aria-label={`${provider.name} overview`}>
       <div className="mb-3">
         <h2 className="text-sm font-semibold text-slate-900">Usage by account</h2>
-        <p className="text-xs text-slate-500">Remaining versus consumed share of each usage limit</p>
+        <p className="text-xs text-slate-500">Consumed versus remaining share of each usage limit</p>
       </div>
       <div className="min-w-0" style={{ height: Math.max(160, rows.length * 44 + 70) }}>
         <ResponsiveContainer width="100%" height="100%">
@@ -46,12 +46,12 @@ export default function ProviderOverview({ provider }) {
             <YAxis type="category" dataKey="name" width={120} tick={{ fontSize: 11, fill: '#334155' }} axisLine={false} tickLine={false} />
             <Tooltip content={<ChartTooltip />} cursor={{ fill: '#f1f5f9' }} />
             <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 12 }} />
-            <Bar dataKey="remaining" name="Remaining" stackId="usage" fill={LEVEL_STYLES.healthy.hex} radius={[4, 0, 0, 4]} isAnimationActive={false}>
+            <Bar dataKey="used" name="Used" stackId="usage" fill={USAGE_BANDS[1].hex} radius={[4, 0, 0, 4]} isAnimationActive={false}>
               {rows.map((row) => (
-                <Cell key={row.key} fill={LEVEL_STYLES[remainingLevel(row.remaining)].hex} />
+                <Cell key={row.key} fill={usageBand(row.used).hex} />
               ))}
             </Bar>
-            <Bar dataKey="used" name="Used" stackId="usage" fill="#cbd5e1" radius={[0, 4, 4, 0]} isAnimationActive={false} />
+            <Bar dataKey="remaining" name="Remaining" stackId="usage" fill="#cbd5e1" radius={[0, 4, 4, 0]} isAnimationActive={false} />
           </BarChart>
         </ResponsiveContainer>
       </div>
