@@ -1,15 +1,21 @@
+import pg from 'pg';
 import { HttpError } from '../utils/HttpError.js';
 
+// Network errors plus PostgreSQL SQLSTATE codes for auth, missing database and server shutdown.
 const DB_UNAVAILABLE_CODES = new Set([
   'ECONNREFUSED',
+  'ECONNRESET',
   'ETIMEDOUT',
   'ENOTFOUND',
-  'PROTOCOL_CONNECTION_LOST',
-  'ER_ACCESS_DENIED_ERROR',
-  'ER_BAD_DB_ERROR',
+  '28000',
+  '28P01',
+  '3D000',
+  '53300',
+  '57P01',
+  '57P03',
 ]);
 
-const isDatabaseError = (err) => typeof err.sqlState === 'string' || err.code?.startsWith('ER_');
+const isDatabaseError = (err) => err instanceof pg.DatabaseError;
 
 const toHttpError = (err) => {
   if (err instanceof HttpError) return err;

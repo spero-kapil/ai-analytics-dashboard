@@ -1,23 +1,15 @@
-import mysql from 'mysql2/promise';
+import pg from 'pg';
 import { env } from './env.js';
 
-export const pool = mysql.createPool({
-  ...env.db,
-  waitForConnections: true,
-  // Return DATETIME/TIMESTAMP columns as "YYYY-MM-DD HH:MM:SS" strings instead of Date objects.
-  dateStrings: true,
-});
+const { connectionLimit, ...connectionOptions } = env.db;
 
-// Keep TIMESTAMP values in UTC regardless of the MySQL server's default time zone.
-pool.pool.on('connection', (connection) => {
-  connection.query("SET time_zone = '+00:00'");
+export const pool = new pg.Pool({
+  ...connectionOptions,
+  max: connectionLimit,
+  // Keep TIMESTAMPTZ values in UTC regardless of the PostgreSQL server's default time zone.
+  options: '-c timezone=UTC',
 });
 
 export const testConnection = async () => {
-  const connection = await pool.getConnection();
-  try {
-    await connection.ping();
-  } finally {
-    connection.release();
-  }
+  await pool.query('SELECT 1');
 };

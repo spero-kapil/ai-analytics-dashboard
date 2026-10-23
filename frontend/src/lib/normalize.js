@@ -1,6 +1,6 @@
 // Turns the /api/data response into providers → accounts → usage meters.
 //
-// Each API record looks like { provider, account_name, plan_type, data, updatedAt },
+// Each API record looks like { provider, email_id, account_name, plan_type, data, last_updated },
 // where `data` is provider-specific. Supported `data` shapes:
 //   flat pairs:     { weekly_usage: 10, weekly_reset_time: '2026-10-27 06:43:58' }
 //   named meters:   { 'Cursor Models': 50, 'Other Models': 10 }
@@ -218,7 +218,7 @@ const formatPlan = (raw) => {
 const normalizeRecord = (record, index) => {
   const data = parseJsonObject(pick(record, ['data', 'usage', 'usage_data', 'limits']));
   const provider = resolveProvider(pick(record, ['provider', 'provider_name', 'providerName', 'service']));
-  const email = pick(record, ['account_name', 'accountName', 'account', 'email', 'username']);
+  const email = pick(record, ['email_id', 'emailId', 'email', 'account_name', 'accountName', 'account', 'username']);
 
   return {
     id: String(pick(record, ['id', '_id']) ?? `${provider.id}-${email ?? 'account'}-${index}`),
@@ -228,6 +228,7 @@ const normalizeRecord = (record, index) => {
     plan: formatPlan(pick(record, ['plan_type', 'planType', 'plan', 'subscription'])),
     meters: extractMeters(data),
     lastUpdated:
+      parseTimestamp(pick(record, ['last_updated', 'lastUpdated'])) ??
       parseTimestamp(isPlainObject(data) ? pick(data, ['last_updated', 'updated_at', 'fetched_at', 'fetchedAt']) : undefined) ??
       parseTimestamp(pick(record, ['updatedAt', 'updated_at', 'createdAt', 'created_at'])),
   };

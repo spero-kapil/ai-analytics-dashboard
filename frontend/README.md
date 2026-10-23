@@ -12,7 +12,7 @@ npm run dev
 ```
 
 The dashboard reads `GET VITE_API_URL` (default `http://127.0.0.1:8000/api/data`), which
-returns `{ success, count, data: [{ provider, account_name, plan_type, data, updatedAt }] }`.
+returns `{ success, count, data: [{ provider, email_id, account_name, plan_type, data, miscellaneous, is_active, last_updated }] }`.
 
 ## Usage data formats
 
