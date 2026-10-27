@@ -1,5 +1,6 @@
 import { CalendarClock, Gauge, Mail } from 'lucide-react';
-import { formatDateTime, formatDuration, formatPercent, formatRelative, LEVEL_STYLES, remainingLevel } from '../lib/format.js';
+import { formatPercent, formatRelative, LEVEL_STYLES, remainingLevel } from '../lib/format.js';
+import ResetInfo from './ResetInfo.jsx';
 import UsageBar from './UsageBar.jsx';
 
 function Detail({ label, children }) {
@@ -8,21 +9,6 @@ function Detail({ label, children }) {
       <dt className="text-[11px] font-medium uppercase tracking-wide text-slate-400">{label}</dt>
       <dd className="mt-0.5 truncate text-sm font-semibold text-slate-800">{children}</dd>
     </div>
-  );
-}
-
-function ResetInfo({ resetAt, now }) {
-  if (typeof resetAt !== 'number') {
-    return <span className="text-sm text-slate-500">Reset time not provided</span>;
-  }
-  const passed = resetAt <= now;
-  return (
-    <span className="flex flex-wrap items-baseline gap-x-2 text-sm">
-      <span className="font-medium text-slate-700">{formatDateTime(resetAt)}</span>
-      <span className={passed ? 'text-amber-600' : 'text-slate-500'}>
-        {passed ? 'reset passed, awaiting new data' : `in ${formatDuration(resetAt - now)}`}
-      </span>
-    </span>
   );
 }
 

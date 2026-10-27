@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Menu, RefreshCw } from 'lucide-react';
+import { LayoutDashboard, Menu, RefreshCw } from 'lucide-react';
 import { useUsageData } from './hooks/useUsageData.js';
 import { useNow } from './hooks/useNow.js';
 import { formatRelative } from './lib/format.js';
@@ -7,20 +7,19 @@ import Sidebar from './components/Sidebar.jsx';
 import ProviderLogo from './components/ProviderLogo.jsx';
 import ProviderOverview from './components/ProviderOverview.jsx';
 import AccountCard from './components/AccountCard.jsx';
+import Dashboard from './components/Dashboard.jsx';
 import { EmptyView, ErrorBanner, ErrorView, LoadingView } from './components/StatusViews.jsx';
+
+const DASHBOARD = 'dashboard';
 
 export default function App() {
   const { providers, loading, refreshing, error, fetchedAt, refresh } = useUsageData();
   const now = useNow();
-  const [selectedId, setSelectedId] = useState(null);
+  const [selectedId, setSelectedId] = useState(DASHBOARD);
   const [menuOpen, setMenuOpen] = useState(false);
 
-  // Default to the first provider that has accounts.
-  const selected =
-    providers.find((provider) => provider.id === selectedId) ??
-    providers.find((provider) => provider.accounts.length > 0) ??
-    providers[0] ??
-    null;
+  const isDashboard = selectedId === DASHBOARD;
+  const selected = isDashboard ? null : (providers.find((provider) => provider.id === selectedId) ?? null);
 
   useEffect(() => {
     if (!menuOpen) return undefined;
@@ -28,6 +27,11 @@ export default function App() {
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [menuOpen]);
+
+  const selectDashboard = () => {
+    setSelectedId(DASHBOARD);
+    setMenuOpen(false);
+  };
 
   const selectProvider = (id) => {
     setSelectedId(id);
@@ -42,6 +46,8 @@ export default function App() {
         providers={providers}
         selectedId={selected?.id}
         onSelect={selectProvider}
+        dashboardSelected={isDashboard}
+        onSelectDashboard={selectDashboard}
         open={menuOpen}
         onClose={() => setMenuOpen(false)}
         loading={loading}
@@ -60,13 +66,21 @@ export default function App() {
             >
               <Menu size={20} />
             </button>
-            {selected && <ProviderLogo provider={selected} size="md" />}
+            {isDashboard ? (
+              <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-600 text-white shadow-sm">
+                <LayoutDashboard size={20} aria-hidden="true" />
+              </span>
+            ) : (
+              selected && <ProviderLogo provider={selected} size="md" />
+            )}
             <div className="min-w-0 flex-1">
               <h1 className="truncate text-lg font-bold text-slate-900 sm:text-xl">
-                {selected ? selected.name : 'Usage & Availability'}
+                {isDashboard ? 'Dashboard' : selected ? selected.name : 'Usage & Availability'}
               </h1>
               <p className="truncate text-xs text-slate-500 sm:text-sm">
-                {selected?.vendor ? `${selected.vendor} · ` : ''}Usage and availability across your accounts
+                {isDashboard
+                  ? 'Aggregated LLM usage across all providers'
+                  : `${selected?.vendor ? `${selected.vendor} · ` : ''}Usage and availability across your accounts`}
               </p>
             </div>
             <div className="flex items-center gap-3">
@@ -93,7 +107,14 @@ export default function App() {
           {loading && !hasData && <LoadingView />}
           {!hasData && !loading && error && <ErrorView message={error} onRetry={refresh} retrying={refreshing} />}
 
-          {hasData && selected && (
+          {hasData && isDashboard && (
+            <>
+              {error && <ErrorBanner message={error} />}
+              <Dashboard providers={providers} now={now} onSelectProvider={selectProvider} />
+            </>
+          )}
+
+          {hasData && !isDashboard && selected && (
             <>
               {error && <ErrorBanner message={error} />}
               {selected.accounts.length === 0 ? (

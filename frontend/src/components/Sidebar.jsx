@@ -1,4 +1,4 @@
-import { Activity, X } from 'lucide-react';
+import { Activity, LayoutDashboard, X } from 'lucide-react';
 import { LEVEL_STYLES, remainingLevel } from '../lib/format.js';
 import ProviderLogo from './ProviderLogo.jsx';
 
@@ -39,7 +39,7 @@ function ProviderButton({ provider, selected, onSelect }) {
   );
 }
 
-export default function Sidebar({ providers, selectedId, onSelect, open, onClose, loading }) {
+export default function Sidebar({ providers, selectedId, onSelect, dashboardSelected, onSelectDashboard, open, onClose, loading }) {
   return (
     <>
       <div
@@ -52,7 +52,7 @@ export default function Sidebar({ providers, selectedId, onSelect, open, onClose
         className={`fixed inset-y-0 left-0 z-40 flex w-72 max-w-[85vw] flex-col border-r border-slate-200 bg-slate-50 transition-transform duration-300 md:sticky md:top-0 md:z-auto md:h-screen md:w-64 md:max-w-none md:translate-x-0 lg:w-1/5 lg:min-w-60 ${
           open ? 'translate-x-0' : '-translate-x-full'
         }`}
-        aria-label="Providers"
+        aria-label="Usage navigation"
       >
         <div className="flex items-center justify-between gap-2 px-5 py-5">
           <div className="flex items-center gap-2.5">
@@ -74,7 +74,29 @@ export default function Sidebar({ providers, selectedId, onSelect, open, onClose
           </button>
         </div>
 
-        <nav className="flex-1 overflow-y-auto px-3 pb-6" aria-label="Provider selection">
+        <nav className="flex-1 overflow-y-auto px-3 pb-6" aria-label="Usage navigation">
+          <ul className="mb-5 space-y-1">
+            <li>
+              <button
+                type="button"
+                onClick={onSelectDashboard}
+                aria-current={dashboardSelected ? 'page' : undefined}
+                className={`group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 ${
+                  dashboardSelected ? 'bg-white text-slate-900 shadow-sm ring-1 ring-slate-200' : 'text-slate-600 hover:bg-white/70 hover:text-slate-900'
+                }`}
+              >
+                <span className={`h-6 w-1 shrink-0 rounded-full ${dashboardSelected ? 'bg-indigo-500' : 'bg-transparent'}`} aria-hidden="true" />
+                <span className={`inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg shadow-sm ${dashboardSelected ? 'bg-indigo-600 text-white' : 'bg-slate-200 text-slate-600'}`}>
+                  <LayoutDashboard size={16} strokeWidth={2.25} aria-hidden="true" />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-sm font-semibold">Dashboard</span>
+                  <span className="block truncate text-xs text-slate-400">All provider usage</span>
+                </span>
+              </button>
+            </li>
+          </ul>
+
           <p className="px-3 pb-2 text-[11px] font-semibold uppercase tracking-wider text-slate-400">Providers</p>
           {loading && providers.length === 0 ? (
             <ul className="space-y-2" aria-hidden="true">

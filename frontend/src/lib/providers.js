@@ -1,4 +1,5 @@
-import { Asterisk, Bot, Boxes, MessageCircle, MousePointer2 } from 'lucide-react';
+import { Asterisk, Bot, Boxes, MousePointer2 } from 'lucide-react';
+import ChatGPTIcon from '../components/ChatGPTIcon.jsx';
 
 // Supported providers, in sidebar order. Tailwind classes are spelled out in
 // full so the compiler can detect them.
@@ -8,9 +9,9 @@ export const PROVIDERS = [
     name: 'ChatGPT',
     vendor: 'OpenAI',
     aliases: ['chatgpt', 'chat-gpt', 'openai', 'gpt'],
-    icon: MessageCircle,
-    logoClass: 'bg-emerald-600 text-white',
-    color: '#059669',
+    icon: ChatGPTIcon,
+    logoClass: 'bg-[#10A37F] text-white',
+    color: '#10A37F',
   },
   {
     id: 'claude',
