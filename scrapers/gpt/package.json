@@ -1,0 +1,16 @@
+{
+  "name": "gpt-tracker",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Fetch ChatGPT subscription usage limits through the local Codex CLI session and write them to logs/.",
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "once": "node src/track-usage.js once",
+    "watch": "node src/track-usage.js watch",
+    "verify": "node src/track-usage.js verify",
+    "start": "node src/track-usage.js watch"
+  }
+}
