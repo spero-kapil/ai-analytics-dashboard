@@ -19,6 +19,7 @@ export function formatDateTime(value) {
   } else if (typeof value === "string") {
     const trimmed = value.trim();
     if (!trimmed) return null;
+    if (API_DATETIME_RE.test(trimmed)) return trimmed;
     if (/^\d+$/.test(trimmed)) {
       const n = Number(trimmed);
       date = n > 1e12 ? new Date(n) : new Date(n * 1000);
@@ -41,13 +42,12 @@ function finitePercent(value) {
   return value;
 }
 
-function modelPayload(window) {
-  const used_percent = finitePercent(window?.usedPercent ?? window?.used_percent);
-  const reset_time = formatDateTime(
-    window?.resetsAtIso ?? window?.reset_time ?? window?.resetsAt,
-  );
-  if (used_percent == null || !reset_time) return null;
-  return { used_percent, reset_time };
+function modelUsedPercent(window) {
+  return finitePercent(window?.usedPercent ?? window?.used_percent);
+}
+
+function modelResetTime(window) {
+  return formatDateTime(window?.resetsAtIso ?? window?.reset_time ?? window?.resetsAt);
 }
 
 export function buildReportPayload(snapshot) {
@@ -57,10 +57,16 @@ export function buildReportPayload(snapshot) {
 
   const monthly = {};
   for (const key of MONTHLY_MODEL_KEYS) {
-    const payload = modelPayload(snapshot?.monthly?.[key]);
-    if (payload) monthly[key] = payload;
+    const used_percent = modelUsedPercent(snapshot?.monthly?.[key]);
+    if (used_percent != null) monthly[key] = { used_percent };
   }
-  if (!Object.keys(monthly).length) return null;
+  if (!MONTHLY_MODEL_KEYS.some((key) => monthly[key])) return null;
+
+  const reset_time =
+    formatDateTime(snapshot?.monthly?.reset_time ?? snapshot?.monthly?.resetsAtIso ?? snapshot?.monthly?.resetsAt) ||
+    MONTHLY_MODEL_KEYS.map((key) => modelResetTime(snapshot?.monthly?.[key])).find(Boolean);
+  if (!reset_time) return null;
+  monthly.reset_time = reset_time;
 
   const last_updated = formatDateTime(snapshot?.loggedAt) || formatDateTime(new Date());
   if (!last_updated) return null;

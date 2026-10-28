@@ -98,13 +98,12 @@ Times are UTC `YYYY-MM-DD HH:mm:ss`.
   "data": {
     "monthly": {
       "Cursor_Models": {
-        "used_percent": 10,
-        "reset_time": "2026-01-01 00:00:00"
+        "used_percent": 10
       },
       "other_models": {
-        "used_percent": 0,
-        "reset_time": "2026-01-01 00:00:00"
-      }
+        "used_percent": 0
+      },
+      "reset_time": "2026-01-01 00:00:00"
     },
     "last_updated": "2026-01-01 00:00:00"
   }
