@@ -2,3 +2,4 @@ node_modules/
 logs/
 .env
 acc*.env
+package-lock.json

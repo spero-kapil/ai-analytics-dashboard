@@ -1,0 +1,11 @@
+.env
+node_modules/
+logs/*.json
+logs/*.jsonl
+logs/*.log
+!logs/.gitkeep
+acc*.env
+
+logs/
+
+package-lock.json

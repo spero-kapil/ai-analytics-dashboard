@@ -1,0 +1,15 @@
+{
+  "name": "devin-tracker",
+  "version": "1.0.0",
+  "description": "Fetch Devin Pro subscription usage from the local Devin CLI session, keep the last 5 log records, and POST them to a local API",
+  "private": true,
+  "type": "commonjs",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node src/index.js --daemon",
+    "once": "node src/index.js --once",
+    "verify": "node src/index.js --verify"
+  }
+}
