@@ -5,6 +5,7 @@
 //   flat pairs:     { weekly_usage: 10, weekly_reset_time: '2026-10-27 06:43:58' }
 //   named meters:   { 'Cursor Models': 50, 'Other Models': 10 }
 //   nested periods: { weekly: { used_percent: 10, reset_at: '...' } }
+//   nested models:  { monthly: { Cursor_Models: { used_percent: 10 }, other_models: { used_percent: 0 }, reset_time: '...' } }
 //   limit lists:    { limits: [{ period: 'weekly', usedPercent: 10, resetAt: 1793091600000 }] }
 // Percentages are "percent used" unless the field name says "remaining".
 import { PROVIDERS, resolveProvider } from './providers.js';
@@ -135,6 +136,14 @@ const buildMeter = ({ key, label, period, used, remaining, reset, limit }) => {
 };
 
 const PERCENT_KEYS = [...USED_KEYS.slice(0, 5), ...REMAINING_KEYS.slice(0, 3)];
+const USAGE_FIGURE_KEYS = [...USED_KEYS, ...REMAINING_KEYS];
+const hasUsageFigures = (value) => isPlainObject(value) && pick(value, USAGE_FIGURE_KEYS) !== undefined;
+
+const STRUCTURAL_KEYS = new Set(
+  [...RESET_KEYS, ...LIMIT_KEYS, ...USAGE_FIGURE_KEYS, 'label', 'name', 'title', 'period', 'window', 'type'].map((key) =>
+    key.toLowerCase(),
+  ),
+);
 
 const meterFromSection = (key, section) =>
   buildMeter({
@@ -146,6 +155,19 @@ const meterFromSection = (key, section) =>
     reset: pick(section, RESET_KEYS),
     limit: pick(section, PERCENT_KEYS) === undefined ? pick(section, LIMIT_KEYS) : undefined,
   });
+
+// monthly: { Cursor_Models: { used_percent }, reset_time } → one meter per model,
+// inheriting the parent period and reset time.
+const meterFromNested = (parentKey, parentValue, childKey, childValue) => {
+  const section = { ...childValue };
+  if (pick(section, ['label', 'name', 'title']) === undefined) section.label = humanize(childKey);
+  if (pick(section, ['period', 'window', 'type']) === undefined) section.period = parentKey;
+  if (pick(section, RESET_KEYS) === undefined) {
+    const inheritedReset = pick(parentValue, RESET_KEYS);
+    if (inheritedReset !== undefined) section.reset_time = inheritedReset;
+  }
+  return meterFromSection(`${parentKey}.${childKey}`, section);
+};
 
 const parseJsonObject = (value) => {
   if (typeof value !== 'string') return value;
@@ -184,7 +206,15 @@ export const extractMeters = (rawData) => {
     }
 
     if (isPlainObject(value)) {
-      if (pick(value, [...USED_KEYS, ...REMAINING_KEYS]) !== undefined) addMeter(meterFromSection(key, value));
+      if (hasUsageFigures(value)) {
+        addMeter(meterFromSection(key, value));
+      } else {
+        for (const [childKey, childValue] of Object.entries(value)) {
+          const lower = childKey.toLowerCase();
+          if (META_KEYS.has(lower) || STRUCTURAL_KEYS.has(lower)) continue;
+          if (hasUsageFigures(childValue)) addMeter(meterFromNested(key, value, childKey, childValue));
+        }
+      }
       continue;
     }
 

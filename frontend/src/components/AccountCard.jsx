@@ -1,5 +1,6 @@
 import { CalendarClock, Gauge, Mail } from 'lucide-react';
 import { formatPercent, formatRelative, LEVEL_STYLES, remainingLevel } from '../lib/format.js';
+import CursorMeters from './CursorMeters.jsx';
 import ResetInfo from './ResetInfo.jsx';
 import UsageBar from './UsageBar.jsx';
 
@@ -65,7 +66,11 @@ export default function AccountCard({ account, index, now }) {
 
       <div className="flex-1 space-y-4">
         {account.meters.length > 0 ? (
-          account.meters.map((meter) => <MeterSection key={meter.id} meter={meter} now={now} />)
+          account.providerId === 'cursor' ? (
+            <CursorMeters meters={account.meters} now={now} />
+          ) : (
+            account.meters.map((meter) => <MeterSection key={meter.id} meter={meter} now={now} />)
+          )
         ) : (
           <div className="flex items-center gap-2 rounded-lg border border-dashed border-slate-200 px-3 py-4 text-sm text-slate-500">
             <Gauge size={16} aria-hidden="true" />

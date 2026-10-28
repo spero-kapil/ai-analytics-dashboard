@@ -1,4 +1,5 @@
 import { CalendarClock, Gauge, Inbox } from 'lucide-react';
+import CursorMeters from './CursorMeters.jsx';
 import ProviderLogo from './ProviderLogo.jsx';
 import ResetInfo from './ResetInfo.jsx';
 import UsageBar from './UsageBar.jsx';
@@ -49,7 +50,11 @@ function AccountUsage({ account, now }) {
       <p className="mb-3 text-[11px] font-medium uppercase tracking-wide text-slate-400">Usage details</p>
       <div className="space-y-4">
         {account.meters.length > 0 ? (
-          account.meters.map((meter) => <UsageStructure key={meter.id} meter={meter} now={now} />)
+          account.providerId === 'cursor' ? (
+            <CursorMeters meters={account.meters} now={now} variant="compact" />
+          ) : (
+            account.meters.map((meter) => <UsageStructure key={meter.id} meter={meter} now={now} />)
+          )
         ) : (
           <div className="flex items-center gap-2 rounded-lg border border-dashed border-slate-200 px-3 py-4 text-sm text-slate-500">
             <Gauge size={16} aria-hidden="true" />
