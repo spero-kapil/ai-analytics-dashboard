@@ -20,6 +20,18 @@ function finitePercent(value) {
   return value;
 }
 
+function windowUsedPercent(window) {
+  const remaining = finitePercent(window && window.remainingPercent);
+  const used = finitePercent(window && window.usedPercent);
+  if (used != null) {
+    return used;
+  }
+  if (remaining != null) {
+    return Number((100 - remaining).toFixed(6));
+  }
+  return 100;
+}
+
 function resolveAccountName(snapshot, override) {
   const fromEnv = String(override || "").trim();
   if (fromEnv) {
@@ -44,18 +56,12 @@ function buildReportPayload(snapshot, accountName) {
 
   const daily = snapshot.daily || {};
   const weekly = snapshot.weekly || {};
-  const dailyUsed = finitePercent(daily.usedPercent);
-  const weeklyUsed = finitePercent(weekly.usedPercent);
-  const dailyReset = formatDateTime(daily.resetsAt);
-  const weeklyReset = formatDateTime(weekly.resetsAt);
   const lastUpdated = formatDateTime(snapshot.lastUpdated);
-  if (
-    dailyUsed == null ||
-    weeklyUsed == null ||
-    !dailyReset ||
-    !weeklyReset ||
-    !lastUpdated
-  ) {
+  const dailyUsed = windowUsedPercent(daily);
+  const weeklyUsed = windowUsedPercent(weekly);
+  const dailyReset = formatDateTime(daily.resetsAt) || lastUpdated;
+  const weeklyReset = formatDateTime(weekly.resetsAt) || lastUpdated;
+  if (!lastUpdated || !dailyReset || !weeklyReset) {
     return null;
   }
 
@@ -124,7 +130,7 @@ function describeSendResult(result, apiUrl) {
       return null;
     }
     if (result.reason === "incomplete") {
-      return "API skipped: missing account email from `devin auth status` (or DEVIN_ACCOUNT_NAME) or daily/weekly usage";
+      return "API skipped: missing account email from `devin auth status` (or DEVIN_ACCOUNT_NAME), plan, or last-updated time";
     }
     return `API skipped: ${result.reason}`;
   }

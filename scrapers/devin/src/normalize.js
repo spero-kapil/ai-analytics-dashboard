@@ -32,21 +32,23 @@ function percentPair(remainingRaw) {
   const remaining = asFiniteNumber(remainingRaw);
   if (remaining === null || remaining < 0 || remaining > 100) {
     return {
-      remainingPercent: UNAVAILABLE,
-      usedPercent: UNAVAILABLE,
+      remainingPercent: 0,
+      usedPercent: 100,
+      unavailable: true,
     };
   }
   return {
     remainingPercent: remaining,
     usedPercent: Number((100 - remaining).toFixed(6)),
+    unavailable: false,
   };
 }
 
 function quotaWindow(status, name, hidden) {
   if (hidden) {
     return {
-      remainingPercent: UNAVAILABLE,
-      usedPercent: UNAVAILABLE,
+      remainingPercent: 0,
+      usedPercent: 100,
       resetsAt: UNAVAILABLE,
       resetsAtUnix: UNAVAILABLE,
       note: `${name} quota is hidden for this plan`,
@@ -60,10 +62,10 @@ function quotaWindow(status, name, hidden) {
     usedPercent: percents.usedPercent,
     resetsAt,
     resetsAtUnix:
-      percents.remainingPercent === UNAVAILABLE && resetsAt === UNAVAILABLE
+      percents.unavailable && resetsAt === UNAVAILABLE
         ? UNAVAILABLE
         : asFiniteNumber(resetsAtUnixRaw) ?? UNAVAILABLE,
-    note: percents.remainingPercent === UNAVAILABLE ? `${name} quota was not returned` : null,
+    note: percents.unavailable ? `${name} quota was not returned` : null,
   };
 }
 

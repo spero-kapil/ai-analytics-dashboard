@@ -9,16 +9,24 @@ export function formatDateTime(iso) {
   return `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())} ${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}:${pad(d.getUTCSeconds())}`;
 }
 
+// 0% used with no reset (shown as Unavailable) means the 5-hour window has
+// not started. Still POST, but send an empty reset_time instead of skipping.
+function fiveHourResetTime(window) {
+  const formatted = formatDateTime(window.resetsAt);
+  if (formatted) return formatted;
+  return Number(window.usedPercent) === 0 ? '' : null;
+}
+
 export function buildReportPayload(snapshot) {
   const email = snapshot?.auth?.email;
   const plan = snapshot?.auth?.subscriptionType;
   if (!email || !plan) return null;
   if (snapshot.fiveHour?.usedPercent == null || snapshot.weekly?.usedPercent == null) return null;
 
-  const fiveReset = formatDateTime(snapshot.fiveHour.resetsAt);
+  const fiveReset = fiveHourResetTime(snapshot.fiveHour);
   const weekReset = formatDateTime(snapshot.weekly.resetsAt);
   const lastUpdated = formatDateTime(snapshot.fetchedAt);
-  if (!fiveReset || !weekReset || !lastUpdated) return null;
+  if (fiveReset == null || !weekReset || !lastUpdated) return null;
 
   return {
     provider: 'claude',
