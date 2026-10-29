@@ -12,7 +12,7 @@ function PeriodBadge({ period }) {
   );
 }
 
-function UsageStructure({ meter, now }) {
+function UsageStructure({ meter, now, providerId }) {
   return (
     <section className="space-y-3 border-t border-slate-100 pt-4 first:border-t-0 first:pt-0" aria-label={meter.label}>
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -29,7 +29,7 @@ function UsageStructure({ meter, now }) {
         <CalendarClock size={16} className="mt-0.5 shrink-0 text-slate-400" aria-hidden="true" />
         <div className="min-w-0">
           <div className="text-[11px] font-medium uppercase tracking-wide text-slate-400">Next reset</div>
-          <ResetInfo resetAt={meter.resetAt} now={now} />
+          <ResetInfo resetAt={meter.resetAt} now={now} providerId={providerId} period={meter.period} />
         </div>
       </div>
     </section>
@@ -53,7 +53,9 @@ function AccountUsage({ account, now }) {
           account.providerId === 'cursor' ? (
             <CursorMeters meters={account.meters} now={now} variant="compact" />
           ) : (
-            account.meters.map((meter) => <UsageStructure key={meter.id} meter={meter} now={now} />)
+            account.meters.map((meter) => (
+              <UsageStructure key={meter.id} meter={meter} now={now} providerId={account.providerId} />
+            ))
           )
         ) : (
           <div className="flex items-center gap-2 rounded-lg border border-dashed border-slate-200 px-3 py-4 text-sm text-slate-500">

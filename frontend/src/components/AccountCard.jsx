@@ -13,7 +13,7 @@ function Detail({ label, children }) {
   );
 }
 
-function MeterSection({ meter, now }) {
+function MeterSection({ meter, now, providerId }) {
   const level = remainingLevel(meter.remainingPercent);
 
   return (
@@ -31,7 +31,7 @@ function MeterSection({ meter, now }) {
         <CalendarClock size={16} className="mt-0.5 shrink-0 text-slate-400" aria-hidden="true" />
         <div className="min-w-0">
           <div className="text-[11px] font-medium uppercase tracking-wide text-slate-400">Reset</div>
-          <ResetInfo resetAt={meter.resetAt} now={now} />
+          <ResetInfo resetAt={meter.resetAt} now={now} providerId={providerId} period={meter.period} />
         </div>
       </div>
     </section>
@@ -69,7 +69,9 @@ export default function AccountCard({ account, index, now }) {
           account.providerId === 'cursor' ? (
             <CursorMeters meters={account.meters} now={now} />
           ) : (
-            account.meters.map((meter) => <MeterSection key={meter.id} meter={meter} now={now} />)
+            account.meters.map((meter) => (
+              <MeterSection key={meter.id} meter={meter} now={now} providerId={account.providerId} />
+            ))
           )
         ) : (
           <div className="flex items-center gap-2 rounded-lg border border-dashed border-slate-200 px-3 py-4 text-sm text-slate-500">

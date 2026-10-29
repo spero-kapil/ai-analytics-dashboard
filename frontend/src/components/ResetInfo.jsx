@@ -1,8 +1,15 @@
 import { formatDateTime, formatDuration } from '../lib/format.js';
 
-export default function ResetInfo({ resetAt, now }) {
-  if (typeof resetAt !== 'number') {
-    return <span className="text-sm text-slate-500">Reset time not provided</span>;
+const DEFAULT_UNAVAILABLE_RESET = 'Reset time not provided';
+const CLAUDE_5H_UNAVAILABLE_RESET = 'Starts with your first message';
+
+export default function ResetInfo({ resetAt, now, providerId, period }) {
+  if (typeof resetAt !== 'number' || resetAt <= 0) {
+    const message =
+      providerId === 'claude' && period === '5-Hour'
+        ? CLAUDE_5H_UNAVAILABLE_RESET
+        : DEFAULT_UNAVAILABLE_RESET;
+    return <span className="text-sm text-slate-500">{message}</span>;
   }
   const passed = resetAt <= now;
   return (
