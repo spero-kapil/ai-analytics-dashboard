@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { LayoutDashboard, Menu, RefreshCw } from 'lucide-react';
+import { LayoutDashboard, LayoutGrid, List, Menu, RefreshCw } from 'lucide-react';
 import { useUsageData } from './hooks/useUsageData.js';
 import { useNow } from './hooks/useNow.js';
 import { formatRelative } from './lib/format.js';
@@ -17,6 +17,8 @@ export default function App() {
   const now = useNow();
   const [selectedId, setSelectedId] = useState(DASHBOARD);
   const [menuOpen, setMenuOpen] = useState(false);
+  // Dashboard layout: 'list' (default, unchanged) or 'grid' (three columns).
+  const [dashboardView, setDashboardView] = useState('list');
 
   const isDashboard = selectedId === DASHBOARD;
   const selected = isDashboard ? null : (providers.find((provider) => provider.id === selectedId) ?? null);
@@ -84,6 +86,18 @@ export default function App() {
               </p>
             </div>
             <div className="flex items-center gap-3">
+              {isDashboard && (
+                <button
+                  type="button"
+                  onClick={() => setDashboardView((view) => (view === 'list' ? 'grid' : 'list'))}
+                  className="hidden items-center justify-center rounded-lg border border-slate-200 bg-white p-2 text-slate-700 shadow-sm hover:bg-slate-50 md:inline-flex"
+                  aria-label={dashboardView === 'list' ? 'Switch to grid view' : 'Switch to list view'}
+                  aria-pressed={dashboardView === 'grid'}
+                  title={dashboardView === 'list' ? 'Grid view' : 'List view'}
+                >
+                  {dashboardView === 'list' ? <LayoutGrid size={16} aria-hidden="true" /> : <List size={16} aria-hidden="true" />}
+                </button>
+              )}
               {fetchedAt && (
                 <span className="hidden text-xs text-slate-500 sm:inline">
                   Synced {formatRelative(Math.min(fetchedAt, now), now)}
@@ -110,7 +124,7 @@ export default function App() {
           {hasData && isDashboard && (
             <>
               {error && <ErrorBanner message={error} />}
-              <Dashboard providers={providers} now={now} onSelectProvider={selectProvider} />
+              <Dashboard providers={providers} now={now} onSelectProvider={selectProvider} view={dashboardView} />
             </>
           )}
 

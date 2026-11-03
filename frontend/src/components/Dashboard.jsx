@@ -3,7 +3,7 @@ import { ArrowRight, ChevronDown, Inbox } from 'lucide-react';
 import AccountCard from './AccountCard.jsx';
 import ProviderLogo from './ProviderLogo.jsx';
 
-function ProviderGroup({ provider, now, onSelectProvider }) {
+function ProviderGroup({ provider, now, onSelectProvider, view }) {
   const [collapsed, setCollapsed] = useState(false);
   // Per-card collapse state, keyed by account id. Owned here so the provider
   // header can collapse/expand all cards and each card still toggles on its own.
@@ -55,7 +55,7 @@ function ProviderGroup({ provider, now, onSelectProvider }) {
         )} */}
       </header>
 
-      <div id={cardsId} className="grid grid-cols-1 gap-4">
+      <div id={cardsId} className={view === 'grid' ? 'grid grid-cols-1 gap-4 md:grid-cols-3 md:gap-2' : 'grid grid-cols-1 gap-4'}>
         {provider.accounts.map((account) => (
           <AccountCard
             key={account.id}
@@ -71,7 +71,7 @@ function ProviderGroup({ provider, now, onSelectProvider }) {
   );
 }
 
-export default function Dashboard({ providers, now, onSelectProvider }) {
+export default function Dashboard({ providers, now, onSelectProvider, view = 'list' }) {
   const withAccounts = providers.filter((provider) => provider.accounts.length > 0);
 
   if (withAccounts.length === 0) {
@@ -91,7 +91,7 @@ export default function Dashboard({ providers, now, onSelectProvider }) {
   return (
     <div className="w-full space-y-6">
       {withAccounts.map((provider) => (
-        <ProviderGroup key={provider.id} provider={provider} now={now} onSelectProvider={onSelectProvider} />
+        <ProviderGroup key={provider.id} provider={provider} now={now} onSelectProvider={onSelectProvider} view={view} />
       ))}
     </div>
   );
