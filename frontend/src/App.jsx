@@ -17,8 +17,8 @@ export default function App() {
   const now = useNow();
   const [selectedId, setSelectedId] = useState(DASHBOARD);
   const [menuOpen, setMenuOpen] = useState(false);
-  // Dashboard layout: 'list' (default, unchanged) or 'grid' (three columns).
-  const [dashboardView, setDashboardView] = useState('list');
+  // Dashboard layout: 'grid' (default, three columns on md+) or 'list'.
+  const [dashboardView, setDashboardView] = useState('grid');
 
   const isDashboard = selectedId === DASHBOARD;
   const selected = isDashboard ? null : (providers.find((provider) => provider.id === selectedId) ?? null);
