@@ -69,7 +69,7 @@ function CompactMeter({ meter }) {
   );
 }
 
-export default function CursorMeters({ meters, now, variant = 'detail' }) {
+export default function CursorMeters({ meters, now, variant = 'detail', showReset = true }) {
   const ordered = sortCursorMeters(meters);
   const resetAt = ordered.find((meter) => typeof meter.resetAt === 'number')?.resetAt ?? null;
   const period = ordered.find((meter) => meter.period)?.period ?? 'Monthly';
@@ -80,14 +80,16 @@ export default function CursorMeters({ meters, now, variant = 'detail' }) {
       {ordered.map((meter) => (
         <Meter key={meter.id} meter={meter} />
       ))}
-      <div className="border-t border-slate-100 pt-4">
-        <CursorReset
-          resetAt={resetAt}
-          now={now}
-          label={variant === 'compact' ? 'Next reset' : 'Reset'}
-          period={variant === 'compact' ? period : null}
-        />
-      </div>
+      {showReset && (
+        <div className="border-t border-slate-100 pt-4">
+          <CursorReset
+            resetAt={resetAt}
+            now={now}
+            label={variant === 'compact' ? 'Next reset' : 'Reset'}
+            period={variant === 'compact' ? period : null}
+          />
+        </div>
+      )}
     </div>
   );
 }

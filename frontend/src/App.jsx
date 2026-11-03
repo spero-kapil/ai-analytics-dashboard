@@ -126,9 +126,9 @@ export default function App() {
                     <h2 className="mb-3 text-sm font-semibold text-slate-700">
                       Accounts <span className="font-normal text-slate-400">({selected.accounts.length})</span>
                     </h2>
-                    <div className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,22rem),1fr))] gap-4">
-                      {selected.accounts.map((account, index) => (
-                        <AccountCard key={account.id} account={account} index={index} now={now} />
+                    <div className="grid grid-cols-1 gap-4">
+                      {selected.accounts.map((account) => (
+                        <AccountCard key={account.id} account={account} now={now} />
                       ))}
                     </div>
                   </section>
